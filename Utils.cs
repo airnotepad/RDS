@@ -8,6 +8,7 @@ namespace RDS;
 internal static class Utils
 {
     internal static string AppPath => Environment.ProcessPath!;
+    internal static string SettingsPath => Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!, "settings.json");
 
     internal static bool HasAdministratorRights()
     {

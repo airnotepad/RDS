@@ -9,7 +9,15 @@ internal class Interceptor
     internal static void Execute(IEnumerable<string> args)
     {
         var parameters = Patameters.Parse(args);
-        RunRDP(parameters.RDP);
+        switch (parameters.Protocol)
+        {
+            case Protocol.RDP:
+                RunRDP(parameters.RDP);
+                break;
+            case Protocol.Anydesk:
+                RunAnydesk(parameters.Anydesk);
+                break;
+        }
     }
 
     private static void RunRDP(RDP rdp)
@@ -41,5 +49,25 @@ internal class Interceptor
                 attempts--;
             }
         }).Wait();
+    }
+
+    private static void RunAnydesk(Anydesk anydesk)
+    {
+        var password = anydesk.Password
+            .Replace("&", "^&")
+            .Replace("<", "^<")
+            .Replace(">", "^>")
+            .Replace("|", "^|");
+
+        new Process
+        {
+            StartInfo =
+            {
+                FileName = "cmd.exe",
+                Arguments = $"/c echo {password} | {Settings.Get().AnydeskPath} {anydesk.Id} --with-password",
+                CreateNoWindow = true,
+                UseShellExecute = false
+            },
+        }.Start();
     }
 }
